@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Trash, Edit, ArrowLeft } from "lucide-react";
+import { formatNumber } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -232,7 +233,7 @@ export default function PlantDetailPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     설비 용량
                   </h3>
-                  <p>{plant.infra.capacity} kW</p>
+                  <p>{formatNumber(plant.infra.capacity)} kW</p>
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-medium text-muted-foreground">
@@ -254,7 +255,8 @@ export default function PlantDetailPage() {
                 </h3>
                 <div className="h-[300px] w-full bg-muted rounded-md flex items-center justify-center">
                   <p className="text-sm text-muted-foreground">
-                    위도: {plant.infra.latitude}, 경도: {plant.infra.longitude}
+                    위도: {formatNumber(plant.infra.latitude, 6)}, 경도:{" "}
+                    {formatNumber(plant.infra.longitude, 6)}
                   </p>
                 </div>
               </div>
@@ -268,7 +270,9 @@ export default function PlantDetailPage() {
                     인버터 용량
                   </h3>
                   <p>
-                    {plant.infra.inverter[0]?.capacity || plant.infra.capacity}{" "}
+                    {formatNumber(
+                      plant.infra.inverter[0]?.capacity || plant.infra.capacity
+                    )}{" "}
                     kW
                   </p>
                 </div>
@@ -276,13 +280,21 @@ export default function PlantDetailPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     경사 각도
                   </h3>
-                  <p>{plant.infra.inverter[0]?.tilt || "정보 없음"}°</p>
+                  <p>
+                    {plant.infra.inverter[0]?.tilt
+                      ? `${formatNumber(plant.infra.inverter[0].tilt, 1)}°`
+                      : "정보 없음"}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-medium text-muted-foreground">
                     방위각
                   </h3>
-                  <p>{plant.infra.inverter[0]?.azimuth || "정보 없음"}°</p>
+                  <p>
+                    {plant.infra.inverter[0]?.azimuth
+                      ? `${formatNumber(plant.infra.inverter[0].azimuth, 1)}°`
+                      : "정보 없음"}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-medium text-muted-foreground">
@@ -314,7 +326,11 @@ export default function PlantDetailPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     고도
                   </h3>
-                  <p>{plant.infra.altitude || "정보 없음"} m</p>
+                  <p>
+                    {plant.infra.altitude
+                      ? `${formatNumber(plant.infra.altitude)} m`
+                      : "정보 없음"}
+                  </p>
                 </div>
               </div>
             </TabsContent>
@@ -338,7 +354,11 @@ export default function PlantDetailPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     가중치
                   </h3>
-                  <p>{plant.contract?.weight || "정보 없음"}</p>
+                  <p>
+                    {plant.contract?.weight
+                      ? formatNumber(plant.contract.weight, 2)
+                      : "정보 없음"}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-medium text-muted-foreground">
@@ -350,7 +370,11 @@ export default function PlantDetailPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     고정 계약 가격
                   </h3>
-                  <p>{plant.contract?.fixed_contract_price || "정보 없음"}</p>
+                  <p>
+                    {plant.contract?.fixed_contract_price
+                      ? formatNumber(plant.contract.fixed_contract_price, 2)
+                      : "정보 없음"}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-sm font-medium text-muted-foreground">
@@ -368,7 +392,11 @@ export default function PlantDetailPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">
                     보장 용량
                   </h3>
-                  <p>{plant.guaranteed_capacity || "정보 없음"}</p>
+                  <p>
+                    {plant.guaranteed_capacity
+                      ? formatNumber(plant.guaranteed_capacity)
+                      : "정보 없음"}
+                  </p>
                 </div>
               </div>
             </TabsContent>

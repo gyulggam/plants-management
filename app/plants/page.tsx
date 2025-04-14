@@ -17,6 +17,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { FilterPanel } from "@/components/plants/filter-panel";
 import { PlusCircle } from "lucide-react";
+import { formatNumber } from "@/lib/utils";
 
 export default function PlantsPage() {
   const router = useRouter();
@@ -434,7 +435,7 @@ export default function PlantsPage() {
                     </TableCell>
                     <TableCell>{plant.infra.address}</TableCell>
                     <TableCell>{plant.infra.type}</TableCell>
-                    <TableCell>{plant.infra.capacity}</TableCell>
+                    <TableCell>{formatNumber(plant.infra.capacity)}</TableCell>
                     <TableCell>
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-xs font-medium 

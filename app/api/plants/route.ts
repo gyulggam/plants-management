@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fakePlants } from "./data/fake-generator";
 import { PowerPlant } from "@/types/power-plant";
+import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
+import path from "path";
+
+const HISTORY_DIR = path.join(process.cwd(), "data", "history");
+
+// 변경 이력 파일이 없으면 생성
+if (!fs.existsSync(HISTORY_DIR)) {
+  fs.mkdirSync(HISTORY_DIR, { recursive: true });
+}
 
 // GET /api/plants
 export async function GET() {
@@ -117,6 +127,25 @@ export async function POST(request: NextRequest) {
     // 실제 API에서는 여기서 DB에 저장
     // 여기서는 메모리에 있는 fakePlants 배열에 추가
     fakePlants.push(newPlant);
+
+    // 추가 이력 생성
+    const historyData = {
+      id: uuidv4(),
+      plantId: newId.toString(),
+      type: "create",
+      changes: {
+        before: null,
+        after: newPlant,
+      },
+      changedBy: "system", // TODO: 실제 사용자 정보로 변경
+      changedAt: new Date().toISOString(),
+    };
+
+    // 변경 이력 저장
+    fs.writeFileSync(
+      path.join(HISTORY_DIR, `${historyData.id}.json`),
+      JSON.stringify(historyData, null, 2)
+    );
 
     return NextResponse.json({
       status: "success",

@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fakePlants } from "../data/fake-generator";
 import { getPlantById } from "../data/utils";
+import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
+import path from "path";
+
+const HISTORY_DIR = path.join(process.cwd(), "data", "history");
+
+// 변경 이력 파일이 없으면 생성
+if (!fs.existsSync(HISTORY_DIR)) {
+  fs.mkdirSync(HISTORY_DIR, { recursive: true });
+}
 
 // GET /api/plants/[id] - 발전소 상세 정보 조회
 export async function GET(
@@ -114,6 +124,25 @@ export async function PATCH(
     // 발전소 정보 업데이트
     fakePlants[plantIndex] = updatedPlant;
 
+    // 변경 이력 생성
+    const historyData = {
+      id: uuidv4(),
+      plantId: id.toString(),
+      type: "update",
+      changes: {
+        before: existingPlant,
+        after: updatedPlant,
+      },
+      changedBy: "system", // TODO: 실제 사용자 정보로 변경
+      changedAt: new Date().toISOString(),
+    };
+
+    // 변경 이력 저장
+    fs.writeFileSync(
+      path.join(HISTORY_DIR, `${historyData.id}.json`),
+      JSON.stringify(historyData, null, 2)
+    );
+
     return NextResponse.json({
       status: "success",
       data: updatedPlant,
@@ -162,8 +191,30 @@ export async function DELETE(
       );
     }
 
+    // 삭제 전 발전소 정보 저장
+    const deletedPlant = fakePlants[plantIndex];
+
     // 발전소 삭제
     fakePlants.splice(plantIndex, 1);
+
+    // 삭제 이력 생성
+    const historyData = {
+      id: uuidv4(),
+      plantId: id.toString(),
+      type: "delete",
+      changes: {
+        before: deletedPlant,
+        after: null,
+      },
+      changedBy: "system", // TODO: 실제 사용자 정보로 변경
+      changedAt: new Date().toISOString(),
+    };
+
+    // 변경 이력 저장
+    fs.writeFileSync(
+      path.join(HISTORY_DIR, `${historyData.id}.json`),
+      JSON.stringify(historyData, null, 2)
+    );
 
     return NextResponse.json({
       status: "success",

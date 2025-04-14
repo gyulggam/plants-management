@@ -1,0 +1,75 @@
+{
+  "id": "718e3b7d-883f-4b05-8579-41db5fcb29a5",
+  "plantId": "31",
+  "type": "create",
+  "changes": {
+    "before": null,
+    "after": {
+      "id": 31,
+      "modified_at": "2025-04-14T09:31:50.345Z",
+      "status": "정상",
+      "infra": {
+        "id": 31,
+        "carrier_fk": 1,
+        "name": "ㅅㄷㄴㅅ1123",
+        "type": "태양광",
+        "address": "12412421421",
+        "latitude": 36.5,
+        "longitude": 127.5,
+        "altitude": null,
+        "capacity": 1000,
+        "install_date": "2025-04-14",
+        "kpx_identifier": {
+          "id": 31,
+          "kpx_cbp_gen_id": ""
+        },
+        "inverter": [
+          {
+            "id": 31,
+            "capacity": 1000,
+            "tilt": 0,
+            "azimuth": 180,
+            "install_type": null,
+            "module_type": null
+          }
+        ],
+        "ess": []
+      },
+      "monitoring": {
+        "id": 231,
+        "company": 1,
+        "rtu_id": "",
+        "resource": 31
+      },
+      "control": [
+        {
+          "id": 81,
+          "company": 1,
+          "control_type": 1,
+          "controllable_capacity": 1000,
+          "rtu_id": "",
+          "onoff_inverter_capacity": {},
+          "priority": 1,
+          "resource": 31
+        }
+      ],
+      "contract": {
+        "id": 31,
+        "modified_at": "2025-04-14T09:31:50.345Z",
+        "resource": 31,
+        "contract_type": "일반",
+        "contract_date": "",
+        "weight": 1,
+        "fixed_contract_type": null,
+        "fixed_contract_price": null,
+        "fixed_contract_agreement_date": null
+      },
+      "substation": 1,
+      "dl": 1,
+      "fixed_contract_price": null,
+      "guaranteed_capacity": 0
+    }
+  },
+  "changedBy": "system",
+  "changedAt": "2025-04-14T09:31:50.345Z"
+}

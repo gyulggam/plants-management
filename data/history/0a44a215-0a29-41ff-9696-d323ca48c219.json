@@ -1,0 +1,140 @@
+{
+  "id": "0a44a215-0a29-41ff-9696-d323ca48c219",
+  "plantId": "2",
+  "type": "update",
+  "changes": {
+    "before": {
+      "id": 2,
+      "modified_at": "2026-04-10T03:14:58.200Z",
+      "status": "정상",
+      "infra": {
+        "id": 2,
+        "carrier_fk": 10002,
+        "name": "태양발전소",
+        "type": "풍력",
+        "address": "3672 만수동 아파트 533동",
+        "latitude": 37.2537,
+        "longitude": 128.9386,
+        "altitude": 193,
+        "capacity": 5585,
+        "install_date": "2025-01-09",
+        "kpx_identifier": {
+          "id": 2,
+          "kpx_cbp_gen_id": "9334"
+        },
+        "inverter": [
+          {
+            "id": 2,
+            "capacity": 5585,
+            "tilt": 24,
+            "azimuth": 115,
+            "install_type": "수상",
+            "module_type": "PERC"
+          }
+        ],
+        "ess": []
+      },
+      "monitoring": {
+        "id": 202,
+        "company": 1,
+        "rtu_id": "8395",
+        "resource": 2
+      },
+      "control": [
+        {
+          "id": 52,
+          "company": 5,
+          "control_type": 3,
+          "controllable_capacity": 5585,
+          "rtu_id": "8395",
+          "onoff_inverter_capacity": {},
+          "priority": 5,
+          "resource": 2
+        }
+      ],
+      "contract": {
+        "id": 2,
+        "modified_at": "2025-04-13T21:02:14.018Z",
+        "resource": 2,
+        "contract_type": "현물고객",
+        "contract_date": "1차 (24-06)",
+        "weight": 1.152,
+        "fixed_contract_type": null,
+        "fixed_contract_price": null,
+        "fixed_contract_agreement_date": null
+      },
+      "substation": 6,
+      "dl": 49,
+      "fixed_contract_price": null,
+      "guaranteed_capacity": -21128.015
+    },
+    "after": {
+      "id": 2,
+      "modified_at": "2025-04-14T09:29:49.937Z",
+      "status": "정상",
+      "infra": {
+        "id": 2,
+        "carrier_fk": 10002,
+        "name": "태양발전소123123",
+        "type": "풍력",
+        "address": "3672 만수동 아파트 533동",
+        "latitude": 37.2537,
+        "longitude": 128.9386,
+        "altitude": 193,
+        "capacity": 5585,
+        "install_date": "2025-01-09",
+        "kpx_identifier": {
+          "id": 2,
+          "kpx_cbp_gen_id": "9334"
+        },
+        "inverter": [
+          {
+            "id": 2,
+            "capacity": 5585,
+            "tilt": 24,
+            "azimuth": 115,
+            "install_type": "수상",
+            "module_type": "PERC"
+          }
+        ],
+        "ess": [],
+        "description": ""
+      },
+      "monitoring": {
+        "id": 202,
+        "company": 1,
+        "rtu_id": "8395",
+        "resource": 2
+      },
+      "control": [
+        {
+          "id": 52,
+          "company": 5,
+          "control_type": 3,
+          "controllable_capacity": 5585,
+          "rtu_id": "8395",
+          "onoff_inverter_capacity": {},
+          "priority": 5,
+          "resource": 2
+        }
+      ],
+      "contract": {
+        "id": 2,
+        "modified_at": "2025-04-13T21:02:14.018Z",
+        "resource": 2,
+        "contract_type": "현물고객",
+        "contract_date": "1차 (24-06)",
+        "weight": 1.152,
+        "fixed_contract_type": null,
+        "fixed_contract_price": null,
+        "fixed_contract_agreement_date": null
+      },
+      "substation": 6,
+      "dl": 49,
+      "fixed_contract_price": null,
+      "guaranteed_capacity": -21128.015
+    }
+  },
+  "changedBy": "system",
+  "changedAt": "2025-04-14T09:29:49.938Z"
+}

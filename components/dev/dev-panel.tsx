@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -40,18 +40,45 @@ export function DevPanel() {
   const [requests, setRequests] = useState<RequestLog[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isAutoOpenEnabled, setIsAutoOpenEnabled] = useState(false);
+  const pendingRequestsRef = useRef<
+    { add?: RequestLog; update?: { id: string; data: Partial<RequestLog> } }[]
+  >([]);
 
-  // 요청 로그 추가
-  const addRequest = (request: RequestLog) => {
-    setRequests((prev) => [request, ...prev].slice(0, 50)); // 최대 50개 요청만 보관
-  };
+  // 요청 로그 추가 (실제 업데이트는 useEffect에서 처리)
+  const addRequest = useCallback((request: RequestLog) => {
+    pendingRequestsRef.current.push({ add: request });
+  }, []);
 
-  // 요청 로그 업데이트
-  const updateRequest = (id: string, data: Partial<RequestLog>) => {
-    setRequests((prev) =>
-      prev.map((req) => (req.id === id ? { ...req, ...data } : req))
-    );
-  };
+  // 요청 로그 업데이트 (실제 업데이트는 useEffect에서 처리)
+  const updateRequest = useCallback((id: string, data: Partial<RequestLog>) => {
+    pendingRequestsRef.current.push({ update: { id, data } });
+  }, []);
+
+  // 대기 중인 요청 처리
+  useEffect(() => {
+    if (pendingRequestsRef.current.length > 0) {
+      const pendingRequests = [...pendingRequestsRef.current];
+      pendingRequestsRef.current = [];
+
+      setRequests((prevRequests) => {
+        let updatedRequests = [...prevRequests];
+
+        pendingRequests.forEach((pending) => {
+          if (pending.add) {
+            updatedRequests = [pending.add, ...updatedRequests].slice(0, 50);
+          } else if (pending.update) {
+            updatedRequests = updatedRequests.map((req) =>
+              req.id === pending.update?.id
+                ? { ...req, ...pending.update.data }
+                : req
+            );
+          }
+        });
+
+        return updatedRequests;
+      });
+    }
+  });
 
   // Fetch API 가로채기
   useEffect(() => {
@@ -141,7 +168,7 @@ export function DevPanel() {
     return () => {
       window.fetch = originalFetch;
     };
-  }, []);
+  }, [addRequest, updateRequest]);
 
   // 요청 모두 지우기
   const clearRequests = () => {

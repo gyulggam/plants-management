@@ -7,24 +7,9 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { PowerPlant } from "@/types/power-plant";
 import { getAllPlants } from "@/lib/api";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Filter, X } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { formatNumber } from "@/lib/utils";
+import { FilterPanel } from "@/components/plants/filter-panel";
 
 // Leaflet 마커 아이콘 설정
 const customIcon = (type: string) => {
@@ -41,18 +26,34 @@ const customIcon = (type: string) => {
 };
 
 export default function MapPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // URL에서 파라미터 가져오기
+  const searchTerm = searchParams.get("search") || "";
+  const typeFilter = searchParams.get("type") || "";
+  const statusFilter = searchParams.get("status") || "";
+  const regionFilter = searchParams.get("region") || "";
+  const minCapacityParam = searchParams.get("minCapacity");
+  const maxCapacityParam = searchParams.get("maxCapacity");
+
   const [plants, setPlants] = useState<PowerPlant[]>([]);
   const [filteredPlants, setFilteredPlants] = useState<PowerPlant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // 필터 상태
-  const [nameFilter, setNameFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("전체");
-  const [statusFilter, setStatusFilter] = useState<string>("전체");
-  const [regionFilter, setRegionFilter] = useState<string>("전체");
-  const [minCapacity, setMinCapacity] = useState(0);
-  const [maxCapacity, setMaxCapacity] = useState(100000);
+  const [nameFilter, setNameFilter] = useState(searchTerm);
+  const [type, setType] = useState(typeFilter || "전체");
+  const [status, setStatus] = useState(statusFilter || "전체");
+  const [region, setRegion] = useState(regionFilter || "전체");
+  const [minCapacity, setMinCapacity] = useState(
+    minCapacityParam ? parseInt(minCapacityParam) : 0
+  );
+  const [maxCapacity, setMaxCapacity] = useState(
+    maxCapacityParam ? parseInt(maxCapacityParam) : 100000
+  );
   const [showActiveOnly, setShowActiveOnly] = useState(false);
 
   // 고유한 지역 및 발전소 유형 목록 (데이터에서 추출)
@@ -61,20 +62,74 @@ export default function MapPage() {
   const [statusTypes, setStatusTypes] = useState<string[]>([]);
   const [maxCapacityLimit, setMaxCapacityLimit] = useState(100000);
 
-  // 필터 패널 상태
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  // URL 파라미터 업데이트 함수
+  const updateURLParams = (filters?: {
+    search?: string;
+    type?: string;
+    status?: string;
+    region?: string;
+    minCapacity?: number;
+    maxCapacity?: number;
+  }) => {
+    const params = new URLSearchParams(searchParams);
 
-  // 활성화된 필터 개수 계산
-  const getActiveFilterCount = () => {
-    let count = 0;
-    if (nameFilter) count++;
-    if (typeFilter !== "전체") count++;
-    if (statusFilter !== "전체") count++;
-    if (regionFilter !== "전체") count++;
-    if (minCapacity > 0) count++;
-    if (maxCapacity < maxCapacityLimit) count++;
-    if (showActiveOnly) count++;
-    return count;
+    if (filters) {
+      // 검색어
+      if (filters.search !== undefined) {
+        if (filters.search) {
+          params.set("search", filters.search);
+        } else {
+          params.delete("search");
+        }
+      }
+
+      // 발전소 타입
+      if (filters.type !== undefined) {
+        if (filters.type && filters.type !== "전체") {
+          params.set("type", filters.type);
+        } else {
+          params.delete("type");
+        }
+      }
+
+      // 상태
+      if (filters.status !== undefined) {
+        if (filters.status && filters.status !== "전체") {
+          params.set("status", filters.status);
+        } else {
+          params.delete("status");
+        }
+      }
+
+      // 지역
+      if (filters.region !== undefined) {
+        if (filters.region && filters.region !== "전체") {
+          params.set("region", filters.region);
+        } else {
+          params.delete("region");
+        }
+      }
+
+      // 최소 용량
+      if (filters.minCapacity !== undefined) {
+        if (filters.minCapacity > 0) {
+          params.set("minCapacity", filters.minCapacity.toString());
+        } else {
+          params.delete("minCapacity");
+        }
+      }
+
+      // 최대 용량
+      if (filters.maxCapacity !== undefined) {
+        if (filters.maxCapacity < maxCapacityLimit) {
+          params.set("maxCapacity", filters.maxCapacity.toString());
+        } else {
+          params.delete("maxCapacity");
+        }
+      }
+    }
+
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -104,7 +159,11 @@ export default function MapPage() {
         setPlantTypes(["전체", ...uniqueTypes]);
         setStatusTypes(["전체", ...uniqueStatus]);
         setMaxCapacityLimit(maxPlantCapacity > 0 ? maxPlantCapacity : 100000);
-        setMaxCapacity(maxPlantCapacity > 0 ? maxPlantCapacity : 100000);
+
+        // 기본 최대 용량 설정 (처음 로드시에만)
+        if (!maxCapacityParam) {
+          setMaxCapacity(maxPlantCapacity > 0 ? maxPlantCapacity : 100000);
+        }
 
         setLoading(false);
       } catch (error) {
@@ -115,7 +174,7 @@ export default function MapPage() {
     }
 
     fetchData();
-  }, []);
+  }, [maxCapacityParam]);
 
   // 필터 적용
   useEffect(() => {
@@ -129,20 +188,18 @@ export default function MapPage() {
     }
 
     // 타입 필터
-    if (typeFilter !== "전체") {
-      result = result.filter((plant) => plant.infra.type === typeFilter);
+    if (type !== "전체") {
+      result = result.filter((plant) => plant.infra.type === type);
     }
 
     // 상태 필터
-    if (statusFilter !== "전체") {
-      result = result.filter((plant) => plant.status === statusFilter);
+    if (status !== "전체") {
+      result = result.filter((plant) => plant.status === status);
     }
 
     // 지역 필터
-    if (regionFilter !== "전체") {
-      result = result.filter((plant) =>
-        plant.infra.address.startsWith(regionFilter)
-      );
+    if (region !== "전체") {
+      result = result.filter((plant) => plant.infra.address.startsWith(region));
     }
 
     // 용량 범위 필터
@@ -163,9 +220,9 @@ export default function MapPage() {
   }, [
     plants,
     nameFilter,
-    typeFilter,
-    statusFilter,
-    regionFilter,
+    type,
+    status,
+    region,
     minCapacity,
     maxCapacity,
     showActiveOnly,
@@ -174,12 +231,74 @@ export default function MapPage() {
   // 필터 초기화
   const resetFilters = () => {
     setNameFilter("");
-    setTypeFilter("전체");
-    setStatusFilter("전체");
-    setRegionFilter("전체");
+    setType("전체");
+    setStatus("전체");
+    setRegion("전체");
     setMinCapacity(0);
     setMaxCapacity(maxCapacityLimit);
     setShowActiveOnly(false);
+
+    // URL 파라미터 초기화
+    updateURLParams({
+      search: "",
+      type: "전체",
+      status: "전체",
+      region: "전체",
+      minCapacity: 0,
+      maxCapacity: maxCapacityLimit,
+    });
+  };
+
+  // 필터 적용 핸들러
+  const applyFilters = () => {
+    updateURLParams({
+      search: nameFilter,
+      type,
+      status,
+      region,
+      minCapacity,
+      maxCapacity,
+    });
+  };
+
+  // 필터 핸들러
+  const onSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    applyFilters();
+  };
+
+  // 특정 필터 제거
+  const removeFilter = (filterType: string) => {
+    switch (filterType) {
+      case "search":
+        setNameFilter("");
+        break;
+      case "type":
+        setType("전체");
+        break;
+      case "status":
+        setStatus("전체");
+        break;
+      case "region":
+        setRegion("전체");
+        break;
+      case "minCapacity":
+        setMinCapacity(0);
+        break;
+      case "maxCapacity":
+        setMaxCapacity(maxCapacityLimit);
+        break;
+    }
+    updateURLParams({
+      [filterType]:
+        filterType === "search"
+          ? ""
+          : filterType === "minCapacity"
+          ? 0
+          : filterType === "maxCapacity"
+          ? maxCapacityLimit
+          : "전체",
+    });
   };
 
   // 로딩 중 상태 표시
@@ -218,234 +337,69 @@ export default function MapPage() {
     );
   }
 
+  // FilterPanel에 전달할 props 준비
+  const filterValues = {
+    search: nameFilter,
+    type,
+    status,
+    region,
+    minCapacity,
+    maxCapacity,
+    maxCapacityLimit,
+  };
+
+  const filterSetters = {
+    setSearch: setNameFilter,
+    setType,
+    setStatus,
+    setRegion,
+    setMinCapacity,
+    setMaxCapacity,
+  };
+
+  const filterOptions = {
+    plantTypes,
+    statusTypes,
+    regions,
+  };
+
+  const filterHandlers = {
+    onSearchSubmit,
+    applyFilters,
+    resetFilters,
+    removeFilter,
+  };
+
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center">
             <CardTitle>발전소 지도</CardTitle>
-            <Collapsible
-              open={isFilterOpen}
-              onOpenChange={setIsFilterOpen}
-              className="w-full"
-            >
-              <div className="flex items-center space-x-2">
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Filter className="h-4 w-4" />
-                    필터
-                    {getActiveFilterCount() > 0 && (
-                      <Badge variant="secondary" className="ml-1">
-                        {getActiveFilterCount()}
-                      </Badge>
-                    )}
-                    {isFilterOpen ? (
-                      <X className="h-3.5 w-3.5 text-muted-foreground" />
-                    ) : null}
-                  </Button>
-                </CollapsibleTrigger>
-                {getActiveFilterCount() > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={resetFilters}
-                    className="text-xs"
-                  >
-                    초기화
-                  </Button>
-                )}
-              </div>
-              <CollapsibleContent className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nameFilter">발전소 이름</Label>
-                    <Input
-                      id="nameFilter"
-                      placeholder="발전소 이름 검색"
-                      value={nameFilter}
-                      onChange={(e) => setNameFilter(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="typeFilter">발전소 유형</Label>
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                      <SelectTrigger id="typeFilter">
-                        <SelectValue placeholder="유형 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {plantTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="statusFilter">운영 상태</Label>
-                    <Select
-                      value={statusFilter}
-                      onValueChange={setStatusFilter}
-                    >
-                      <SelectTrigger id="statusFilter">
-                        <SelectValue placeholder="상태 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusTypes.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="regionFilter">지역</Label>
-                    <Select
-                      value={regionFilter}
-                      onValueChange={setRegionFilter}
-                    >
-                      <SelectTrigger id="regionFilter">
-                        <SelectValue placeholder="지역 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {regions.map((region) => (
-                          <SelectItem key={region} value={region}>
-                            {region}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <Label>설비 용량 (kW)</Label>
-                      <span className="text-sm text-muted-foreground">
-                        {minCapacity} - {maxCapacity} kW
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 py-4">
-                      <Input
-                        type="number"
-                        min="0"
-                        value={minCapacity}
-                        onChange={(e) =>
-                          setMinCapacity(parseInt(e.target.value) || 0)
-                        }
-                        className="w-24"
-                      />
-                      <div className="grow text-center">~</div>
-                      <Input
-                        type="number"
-                        min="0"
-                        value={maxCapacity}
-                        onChange={(e) =>
-                          setMaxCapacity(parseInt(e.target.value) || 0)
-                        }
-                        className="w-24"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="showActiveOnly"
-                      checked={showActiveOnly}
-                      onCheckedChange={setShowActiveOnly}
-                    />
-                    <Label htmlFor="showActiveOnly">
-                      가동 중인 발전소만 표시
-                    </Label>
-                  </div>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {nameFilter && (
-              <Badge variant="outline" className="gap-1">
-                이름: {nameFilter}
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setNameFilter("")}
-                />
-              </Badge>
-            )}
-            {typeFilter !== "전체" && (
-              <Badge variant="outline" className="gap-1">
-                유형: {typeFilter}
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setTypeFilter("전체")}
-                />
-              </Badge>
-            )}
-            {statusFilter !== "전체" && (
-              <Badge variant="outline" className="gap-1">
-                상태: {statusFilter}
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setStatusFilter("전체")}
-                />
-              </Badge>
-            )}
-            {regionFilter !== "전체" && (
-              <Badge variant="outline" className="gap-1">
-                지역: {regionFilter}
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setRegionFilter("전체")}
-                />
-              </Badge>
-            )}
-            {minCapacity > 0 && (
-              <Badge variant="outline" className="gap-1">
-                최소 용량: {minCapacity}kW
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setMinCapacity(0)}
-                />
-              </Badge>
-            )}
-            {maxCapacity < maxCapacityLimit && (
-              <Badge variant="outline" className="gap-1">
-                최대 용량: {maxCapacity}kW
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setMaxCapacity(maxCapacityLimit)}
-                />
-              </Badge>
-            )}
-            {showActiveOnly && (
-              <Badge variant="outline" className="gap-1">
-                가동중인 발전소만
-                <X
-                  className="h-3 w-3 cursor-pointer"
-                  onClick={() => setShowActiveOnly(false)}
-                />
-              </Badge>
-            )}
+          <div className="relative z-20">
+            <FilterPanel
+              values={filterValues}
+              setters={filterSetters}
+              options={filterOptions}
+              handlers={filterHandlers}
+            />
           </div>
 
           <div className="mb-2 text-sm text-muted-foreground">
             검색 결과: {filteredPlants.length}개의 발전소
           </div>
 
-          <div className="h-[600px] w-full rounded-md overflow-hidden">
+          <div className="h-[600px] w-full rounded-md overflow-hidden relative z-10">
             {typeof window !== "undefined" && (
               <MapContainer
                 center={[36.5, 127.5]} // 한국 중심 좌표
                 style={{ height: "100%", width: "100%" }}
                 zoom={7}
                 scrollWheelZoom={true}
+                className="z-0"
               >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -461,7 +415,7 @@ export default function MapPage() {
                       <div className="text-sm">
                         <h3 className="font-bold">{plant.infra.name}</h3>
                         <p>유형: {plant.infra.type}</p>
-                        <p>용량: {plant.infra.capacity} kW</p>
+                        <p>용량: {formatNumber(plant.infra.capacity)} kW</p>
                         <p>주소: {plant.infra.address}</p>
                         <p>상태: {plant.status || "정상"}</p>
                       </div>
@@ -484,6 +438,10 @@ export default function MapPage() {
               <div className="w-3 h-3 rounded-full bg-[#7D33FF] border-2 border-white"></div>
               <span className="text-sm">기타</span>
             </div>
+          </div>
+
+          <div className="mb-2 text-sm text-muted-foreground">
+            총 {plants.length}개 중 {filteredPlants.length}개 표시 중
           </div>
         </CardContent>
       </Card>

@@ -98,7 +98,7 @@ export function FilterPanel({
   };
 
   return (
-    <>
+    <div className="relative z-40">
       <form onSubmit={onSearchSubmit} className="flex items-center mb-4">
         <div className="flex gap-2 flex-1">
           <Input
@@ -121,7 +121,7 @@ export function FilterPanel({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80">
+            <PopoverContent className="w-80 z-50">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="typeFilter">발전소 유형</Label>
@@ -129,7 +129,7 @@ export function FilterPanel({
                     <SelectTrigger id="typeFilter">
                       <SelectValue placeholder="유형 선택" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50">
                       <SelectItem value="all">전체</SelectItem>
                       {plantTypes.map((type) => (
                         <SelectItem key={type} value={type}>
@@ -146,7 +146,7 @@ export function FilterPanel({
                     <SelectTrigger id="statusFilter">
                       <SelectValue placeholder="상태 선택" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50">
                       <SelectItem value="all">전체</SelectItem>
                       {statusTypes.map((status) => (
                         <SelectItem key={status} value={status}>
@@ -163,7 +163,7 @@ export function FilterPanel({
                     <SelectTrigger id="regionFilter">
                       <SelectValue placeholder="지역 선택" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50">
                       <SelectItem value="all">전체</SelectItem>
                       {regions.map((region) => (
                         <SelectItem key={region} value={region}>
@@ -216,7 +216,7 @@ export function FilterPanel({
       </form>
 
       {getActiveFilterCount() > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4 z-40 relative">
           {search && (
             <Badge variant="outline" className="gap-1">
               검색: {search}
@@ -281,6 +281,6 @@ export function FilterPanel({
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -27,6 +27,40 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import dynamic from "next/dynamic";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// 서버 컴포넌트가 아닌 클라이언트에서만 로드할 맵 컴포넌트 (SSR 비활성화)
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+  ssr: false,
+});
+
+// 발전소 타입별 마커 아이콘 설정
+const getPlantIcon = (type: string) => {
+  // 발전소 타입별 다른 색상 적용
+  const color =
+    type === "태양광" ? "#FF5733" : type === "풍력" ? "#33B5FF" : "#7D33FF";
+
+  return L.divIcon({
+    html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+    className: "custom-marker",
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+};
 
 export default function PlantDetailPage() {
   const params = useParams();
@@ -35,6 +69,7 @@ export default function PlantDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchPlantData() {
@@ -149,7 +184,7 @@ export default function PlantDetailPage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => router.back()}
+          onClick={() => router.push(`/plants`)}
           className="gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -167,7 +202,7 @@ export default function PlantDetailPage() {
             수정
           </Button>
 
-          <AlertDialog>
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm" className="gap-1">
                 <Trash className="h-4 w-4" />
@@ -253,12 +288,38 @@ export default function PlantDetailPage() {
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
                   발전소 위치
                 </h3>
-                <div className="h-[300px] w-full bg-muted rounded-md flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">
-                    위도: {formatNumber(plant.infra.latitude, 6)}, 경도:{" "}
-                    {formatNumber(plant.infra.longitude, 6)}
-                  </p>
+                <div className="h-[300px] w-full rounded-md overflow-hidden relative z-10">
+                  {plant && typeof window !== "undefined" && (
+                    <MapContainer
+                      center={[plant.infra.latitude, plant.infra.longitude]}
+                      zoom={13}
+                      style={{ height: "100%", width: "100%" }}
+                      className="z-0"
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <Marker
+                        position={[plant.infra.latitude, plant.infra.longitude]}
+                        icon={getPlantIcon(plant.infra.type)}
+                      >
+                        <Popup>
+                          <div className="text-sm">
+                            <h3 className="font-bold">{plant.infra.name}</h3>
+                            <p>유형: {plant.infra.type}</p>
+                            <p>용량: {formatNumber(plant.infra.capacity)} kW</p>
+                            <p>주소: {plant.infra.address}</p>
+                          </div>
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
+                  )}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  위도: {formatNumber(plant.infra.latitude, 6)}, 경도:{" "}
+                  {formatNumber(plant.infra.longitude, 6)}
+                </p>
               </div>
             </TabsContent>
 

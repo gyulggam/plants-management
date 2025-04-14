@@ -8,7 +8,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -54,7 +55,8 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -134,7 +136,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await Promise.resolve(params);
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(

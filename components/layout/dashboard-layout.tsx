@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { DevPanel } from "../dev/dev-panel";
+import { ThemeControl } from "../theme/theme-control";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -87,6 +88,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </Link>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeControl />
           {process.env.NODE_ENV === "development" && (
             <Button
               variant="ghost"

@@ -7,11 +7,16 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const authenticated = await isAuthenticated();
+  try {
+    const authenticated = await isAuthenticated();
 
-  if (!authenticated) {
+    if (!authenticated) {
+      redirect("/login");
+    }
+
+    return <DashboardLayout>{children}</DashboardLayout>;
+  } catch (error) {
+    console.error("Error in dashboard layout:", error);
     redirect("/login");
   }
-
-  return <DashboardLayout>{children}</DashboardLayout>;
 }

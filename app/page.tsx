@@ -2,11 +2,19 @@ import { redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 
 export default async function HomePage() {
-  const authenticated = await isAuthenticated();
+  try {
+    // 인증 확인 시도
+    const authenticated = await isAuthenticated();
 
-  if (authenticated) {
-    redirect("/dashboard");
-  } else {
+    // 인증 결과에 따라 리다이렉션
+    if (authenticated) {
+      redirect("/dashboard");
+    } else {
+      redirect("/login");
+    }
+  } catch (error) {
+    // 오류 발생 시 로그인 페이지로 리다이렉션
+    console.error("Error in root page:", error);
     redirect("/login");
   }
 

@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth";
+import { nextAuthOptions } from "./next-auth-options";
 
 export async function getSession() {
-  return await getServerSession();
+  return await getServerSession(nextAuthOptions);
 }
 
 export async function getCurrentUser() {

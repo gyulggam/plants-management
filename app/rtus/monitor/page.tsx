@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -142,36 +143,6 @@ export default function RTUMonitorPage() {
     }
   };
 
-  // 더미 RTU 데이터 추가 (디버깅용)
-  const addDummyRTUData = () => {
-    const dummyId = Math.random().toString(36).substring(7);
-    const statuses: ("online" | "offline" | "warning")[] = [
-      "online",
-      "offline",
-      "warning",
-    ];
-    const dummyData: RTUData = {
-      id: dummyId,
-      name: `RTU-${dummyId}`,
-      battery: Math.floor(Math.random() * 100),
-      signal: Math.floor(Math.random() * 100),
-      status: statuses[Math.floor(Math.random() * 3)],
-      lastUpdate: new Date().toISOString(),
-    };
-
-    setRtuData((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(dummyId, dummyData);
-      return newMap;
-    });
-
-    setAllRTUs((prev) => [...prev, dummyId]);
-
-    if (selectedRTUs.size === 0) {
-      setSelectedRTUs(new Set([dummyId]));
-    }
-  };
-
   // 데이터 수동 새로고침
   const handleRefresh = () => {
     setConnectionStatus("새로고침 중...");
@@ -195,18 +166,7 @@ export default function RTUMonitorPage() {
             >
               {connectionStatus}
             </Badge>
-            <button
-              onClick={handleRefresh}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm"
-            >
-              새로고침
-            </button>
-            <button
-              onClick={addDummyRTUData}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm"
-            >
-              테스트 데이터 추가
-            </button>
+            <Button onClick={handleRefresh}>새로고침</Button>
           </div>
         </div>
       </div>

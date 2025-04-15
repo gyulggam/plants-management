@@ -80,6 +80,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         },
       ],
     },
+    {
+      title: "메일 서비스",
+      href: "/mail",
+      isActive: pathname
+        ? pathname === "/mail" || pathname.startsWith("/mail/")
+        : false,
+    },
   ];
 
   return (

@@ -11,11 +11,11 @@ import {
   Area,
   BarChart,
   Bar,
+  ResponsiveContainer,
 } from "recharts";
 import { useState, useEffect } from "react";
 
 // 공통 설정값
-const CHART_WIDTH = 500;
 const CHART_HEIGHT = 180;
 const UPDATE_INTERVAL = 5000;
 
@@ -100,30 +100,30 @@ export function RTUBatteryChart({ rtuId }: RTUChartProps) {
 
   return (
     <div className="w-full h-full">
-      <AreaChart
-        width={CHART_WIDTH}
-        height={CHART_HEIGHT}
-        data={data}
-        margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis dataKey="time" tick={{ fontSize: 9 }} />
-        <YAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            fontSize: "10px",
-          }}
-          formatter={(value: number) => [`${value}%`, "배터리"]}
-        />
-        <Area
-          type="monotone"
-          dataKey="battery"
-          stroke="#2563eb"
-          fill="#3b82f6"
-          fillOpacity={0.5}
-        />
-      </AreaChart>
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <AreaChart
+          data={data}
+          margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey="time" tick={{ fontSize: 9 }} />
+          <YAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              fontSize: "10px",
+            }}
+            formatter={(value: number) => [`${value}%`, "배터리"]}
+          />
+          <Area
+            type="monotone"
+            dataKey="battery"
+            stroke="#2563eb"
+            fill="#3b82f6"
+            fillOpacity={0.5}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -195,30 +195,30 @@ export function RTUSignalChart({ rtuId }: RTUChartProps) {
 
   return (
     <div className="w-full h-full">
-      <LineChart
-        width={CHART_WIDTH}
-        height={CHART_HEIGHT}
-        data={data}
-        margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis dataKey="time" tick={{ fontSize: 9 }} />
-        <YAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            fontSize: "10px",
-          }}
-          formatter={(value: number) => [`${value}%`, "신호 강도"]}
-        />
-        <Line
-          type="monotone"
-          dataKey="signal"
-          stroke="#16a34a"
-          strokeWidth={1.5}
-          dot={{ r: 2 }}
-        />
-      </LineChart>
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey="time" tick={{ fontSize: 9 }} />
+          <YAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              fontSize: "10px",
+            }}
+            formatter={(value: number) => [`${value}%`, "신호 강도"]}
+          />
+          <Line
+            type="monotone"
+            dataKey="signal"
+            stroke="#16a34a"
+            strokeWidth={1.5}
+            dot={{ r: 2 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -278,39 +278,39 @@ export function RTUValuesBarChart({ rtuId }: RTUChartProps) {
 
   return (
     <div className="w-full h-full">
-      <BarChart
-        layout="vertical"
-        width={CHART_WIDTH}
-        height={CHART_HEIGHT}
-        data={data}
-        margin={{ top: 5, right: 5, left: 45, bottom: 5 }}
-      >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="#f0f0f0"
-          horizontal={true}
-          vertical={false}
-        />
-        <XAxis type="number" tick={{ fontSize: 9 }} />
-        <YAxis
-          dataKey="name"
-          type="category"
-          tick={{ fontSize: 9 }}
-          width={40}
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            fontSize: "10px",
-          }}
-        />
-        <Bar
-          dataKey="value"
-          fill="#3b82f6"
-          barSize={10}
-          radius={[0, 3, 3, 0]}
-        />
-      </BarChart>
+      <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+        <BarChart
+          layout="vertical"
+          data={data}
+          margin={{ top: 5, right: 5, left: 45, bottom: 5 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#f0f0f0"
+            horizontal={true}
+            vertical={false}
+          />
+          <XAxis type="number" tick={{ fontSize: 9 }} />
+          <YAxis
+            dataKey="name"
+            type="category"
+            tick={{ fontSize: 9 }}
+            width={40}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              fontSize: "10px",
+            }}
+          />
+          <Bar
+            dataKey="value"
+            fill="#3b82f6"
+            barSize={10}
+            radius={[0, 3, 3, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

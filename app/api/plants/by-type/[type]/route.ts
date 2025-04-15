@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { filterPlantsByType } from "../../data/utils";
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { type: string } }
+  request: Request,
+  { params }: { params: Promise<{ type: string }> }
 ) {
   // URL 파라미터 처리
   const url = new URL(request.url);
@@ -13,8 +13,10 @@ export async function GET(
   const offset = (page - 1) * limit;
 
   try {
+    const resolvedParams = await params;
+
     // 발전소 유형으로 필터링
-    const filteredPlants = filterPlantsByType(params.type);
+    const filteredPlants = filterPlantsByType(resolvedParams.type);
 
     // 데이터 페이지네이션
     const paginatedPlants = filteredPlants.slice(offset, offset + limit);
@@ -29,15 +31,19 @@ export async function GET(
         page,
         limit,
         totalPages,
-        filterType: params.type,
+        filterType: resolvedParams.type,
       },
     });
   } catch (error) {
-    console.error(`Error filtering plants by type ${params.type}:`, error);
+    const resolvedParams = await params;
+    console.error(
+      `Error filtering plants by type ${resolvedParams.type}:`,
+      error
+    );
     return NextResponse.json(
       {
         status: "error",
-        message: `${params.type} 유형의 발전소 데이터를 가져오는 중 오류가 발생했습니다.`,
+        message: `${resolvedParams.type} 유형의 발전소 데이터를 가져오는 중 오류가 발생했습니다.`,
       },
       { status: 500 }
     );

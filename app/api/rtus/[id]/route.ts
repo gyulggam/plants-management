@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { fakeRTUs, getRTUById } from "../data/fake-generator";
 import { RTU } from "@/types/rtu";
 
 // GET /api/rtus/[id] - 특정 RTU 조회
 export async function GET(
-  _: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     const rtu = getRTUById(id);
 
     if (!rtu) {
@@ -26,7 +27,8 @@ export async function GET(
       data: rtu,
     });
   } catch (error) {
-    console.error(`Error fetching RTU with ID ${params.id}:`, error);
+    const resolvedParams = await params;
+    console.error(`Error fetching RTU with ID ${resolvedParams.id}:`, error);
     return NextResponse.json(
       {
         status: "error",
@@ -39,11 +41,12 @@ export async function GET(
 
 // PATCH /api/rtus/[id] - RTU 정보 수정
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     const rtuIndex = fakeRTUs.findIndex((r) => r.id === id);
 
     if (rtuIndex === -1) {
@@ -120,7 +123,8 @@ export async function PATCH(
       data: updatedRTU,
     });
   } catch (error) {
-    console.error(`Error updating RTU with ID ${params.id}:`, error);
+    const resolvedParams = await params;
+    console.error(`Error updating RTU with ID ${resolvedParams.id}:`, error);
     return NextResponse.json(
       {
         status: "error",
@@ -133,11 +137,12 @@ export async function PATCH(
 
 // DELETE /api/rtus/[id] - RTU 삭제
 export async function DELETE(
-  _: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     const rtuIndex = fakeRTUs.findIndex((r) => r.id === id);
 
     if (rtuIndex === -1) {
@@ -158,7 +163,8 @@ export async function DELETE(
       message: `ID: ${id} RTU가 성공적으로 삭제되었습니다.`,
     });
   } catch (error) {
-    console.error(`Error deleting RTU with ID ${params.id}:`, error);
+    const resolvedParams = await params;
+    console.error(`Error deleting RTU with ID ${resolvedParams.id}:`, error);
     return NextResponse.json(
       {
         status: "error",

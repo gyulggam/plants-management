@@ -4,13 +4,49 @@ import { getPlantById } from "../data/utils";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import path from "path";
+import { PowerPlant } from "@/types/power-plant";
 
-const HISTORY_DIR = path.join(process.cwd(), "data", "history");
+// 개발 환경에서만 파일 시스템에 접근
+const isLocalEnvironment = process.env.NODE_ENV === "development";
+const HISTORY_DIR = isLocalEnvironment
+  ? path.join(process.cwd(), "data", "history")
+  : null;
 
-// 변경 이력 파일이 없으면 생성
-if (!fs.existsSync(HISTORY_DIR)) {
+// 변경 이력 파일이 없으면 생성 (개발 환경에서만)
+if (isLocalEnvironment && HISTORY_DIR && !fs.existsSync(HISTORY_DIR)) {
   fs.mkdirSync(HISTORY_DIR, { recursive: true });
 }
+
+// 이력 저장 함수
+const saveHistory = (historyData: {
+  id: string;
+  plantId: string;
+  type: string;
+  changes: {
+    before: PowerPlant | null;
+    after: PowerPlant | null;
+  };
+  changedBy: string;
+  changedAt: string;
+}) => {
+  // 개발 환경에서만 파일에 저장
+  if (isLocalEnvironment && HISTORY_DIR) {
+    try {
+      fs.writeFileSync(
+        path.join(HISTORY_DIR, `${historyData.id}.json`),
+        JSON.stringify(historyData, null, 2)
+      );
+    } catch (error) {
+      console.error("Failed to save history:", error);
+    }
+  } else {
+    // 프로덕션 환경에서는 로그만 출력
+    console.log(
+      "History event occurred (not saved in production):",
+      historyData.type
+    );
+  }
+};
 
 // GET /api/plants/[id] - 발전소 상세 정보 조회
 export async function GET(
@@ -138,10 +174,7 @@ export async function PATCH(
     };
 
     // 변경 이력 저장
-    fs.writeFileSync(
-      path.join(HISTORY_DIR, `${historyData.id}.json`),
-      JSON.stringify(historyData, null, 2)
-    );
+    saveHistory(historyData);
 
     return NextResponse.json({
       status: "success",
@@ -211,10 +244,7 @@ export async function DELETE(
     };
 
     // 변경 이력 저장
-    fs.writeFileSync(
-      path.join(HISTORY_DIR, `${historyData.id}.json`),
-      JSON.stringify(historyData, null, 2)
-    );
+    saveHistory(historyData);
 
     return NextResponse.json({
       status: "success",

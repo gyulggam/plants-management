@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { fakePlants } from "../data/fake-generator";
 import { getPlantById } from "../data/utils";
 import { v4 as uuidv4 } from "uuid";
@@ -14,11 +14,12 @@ if (!fs.existsSync(HISTORY_DIR)) {
 
 // GET /api/plants/[id] - 발전소 상세 정보 조회
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -47,7 +48,7 @@ export async function GET(
       data: plant,
     });
   } catch (error) {
-    console.error(`Error fetching plant with ID ${params.id}:`, error);
+    console.error(`Error fetching plant with ID ${(await params).id}:`, error);
     return NextResponse.json(
       {
         status: "error",
@@ -60,11 +61,12 @@ export async function GET(
 
 // PATCH /api/plants/[id] - 발전소 정보 수정
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -146,7 +148,7 @@ export async function PATCH(
       data: updatedPlant,
     });
   } catch (error) {
-    console.error(`Error updating plant with ID ${params.id}:`, error);
+    console.error(`Error updating plant with ID ${(await params).id}:`, error);
     return NextResponse.json(
       {
         status: "error",
@@ -159,11 +161,12 @@ export async function PATCH(
 
 // DELETE /api/plants/[id] - 발전소 삭제
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const resolvedParams = await params;
+    const id = parseInt(resolvedParams.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -218,7 +221,7 @@ export async function DELETE(
       message: `ID: ${id} 발전소가 성공적으로 삭제되었습니다.`,
     });
   } catch (error) {
-    console.error(`Error deleting plant with ID ${params.id}:`, error);
+    console.error(`Error deleting plant with ID ${(await params).id}:`, error);
     return NextResponse.json(
       {
         status: "error",

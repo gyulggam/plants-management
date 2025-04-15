@@ -1,5 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,4 +18,16 @@ export function formatNumber(value: number, decimals: number = 0): string {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
+}
+
+export function formatDate(
+  date: string,
+  formatStr: string = "yyyy-MM-dd"
+): string {
+  try {
+    return format(new Date(date), formatStr, { locale: ko });
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    return date;
+  }
 }

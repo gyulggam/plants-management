@@ -61,6 +61,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         },
       ],
     },
+    {
+      title: "RTU 관리",
+      href: "/rtus",
+      isActive: pathname
+        ? pathname === "/rtus" || pathname.startsWith("/rtus/")
+        : false,
+      items: [
+        {
+          title: "RTU 목록",
+          href: "/rtus",
+          isActive: pathname === "/rtus",
+        },
+        {
+          title: "실시간 모니터링",
+          href: "/rtus/monitor",
+          isActive: pathname === "/rtus/monitor",
+        },
+      ],
+    },
   ];
 
   return (

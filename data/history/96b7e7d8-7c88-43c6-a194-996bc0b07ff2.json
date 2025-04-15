@@ -1,0 +1,140 @@
+{
+  "id": "96b7e7d8-7c88-43c6-a194-996bc0b07ff2",
+  "plantId": "24",
+  "type": "update",
+  "changes": {
+    "before": {
+      "id": 24,
+      "modified_at": "2026-03-29T08:51:16.150Z",
+      "status": "정상",
+      "infra": {
+        "id": 24,
+        "carrier_fk": 10024,
+        "name": "신재생하우스",
+        "type": "바이오매스",
+        "address": "1783 중계읍 아파트 113동",
+        "latitude": 33.3654,
+        "longitude": 129.6299,
+        "altitude": 112,
+        "capacity": 1492,
+        "install_date": "2022-12-17",
+        "kpx_identifier": {
+          "id": 24,
+          "kpx_cbp_gen_id": "1891"
+        },
+        "inverter": [
+          {
+            "id": 24,
+            "capacity": 1492,
+            "tilt": 19,
+            "azimuth": 264,
+            "install_type": "육상",
+            "module_type": "박막형"
+          }
+        ],
+        "ess": []
+      },
+      "monitoring": {
+        "id": 224,
+        "company": 1,
+        "rtu_id": "0009",
+        "resource": 24
+      },
+      "control": [
+        {
+          "id": 74,
+          "company": 4,
+          "control_type": 3,
+          "controllable_capacity": 1492,
+          "rtu_id": "0009",
+          "onoff_inverter_capacity": {},
+          "priority": 3,
+          "resource": 24
+        }
+      ],
+      "contract": {
+        "id": 24,
+        "modified_at": "2025-04-14T08:45:33.838Z",
+        "resource": 24,
+        "contract_type": "대체에너지",
+        "contract_date": "3차 (24-08)",
+        "weight": 1.092,
+        "fixed_contract_type": null,
+        "fixed_contract_price": null,
+        "fixed_contract_agreement_date": "2024-05-29T18:11:20.941Z"
+      },
+      "substation": 12,
+      "dl": 25,
+      "fixed_contract_price": null,
+      "guaranteed_capacity": -28907.38
+    },
+    "after": {
+      "id": 24,
+      "modified_at": "2025-04-15T02:35:23.114Z",
+      "status": "비활성",
+      "infra": {
+        "id": 24,
+        "carrier_fk": 10024,
+        "name": "신재생하우스23232313213",
+        "type": "바이오매스",
+        "address": "1783 중계읍 아파트 113동",
+        "latitude": 33.3654,
+        "longitude": 129.6299,
+        "altitude": 112,
+        "capacity": 1492,
+        "install_date": "2022-12-17",
+        "kpx_identifier": {
+          "id": 24,
+          "kpx_cbp_gen_id": "1891"
+        },
+        "inverter": [
+          {
+            "id": 24,
+            "capacity": 1492,
+            "tilt": 19,
+            "azimuth": 264,
+            "install_type": "육상",
+            "module_type": "박막형"
+          }
+        ],
+        "ess": [],
+        "description": ""
+      },
+      "monitoring": {
+        "id": 224,
+        "company": 1,
+        "rtu_id": "0009",
+        "resource": 24
+      },
+      "control": [
+        {
+          "id": 74,
+          "company": 4,
+          "control_type": 3,
+          "controllable_capacity": 1492,
+          "rtu_id": "0009",
+          "onoff_inverter_capacity": {},
+          "priority": 3,
+          "resource": 24
+        }
+      ],
+      "contract": {
+        "id": 24,
+        "modified_at": "2025-04-14T08:45:33.838Z",
+        "resource": 24,
+        "contract_type": "대체에너지",
+        "contract_date": "3차 (24-08)",
+        "weight": 1.092,
+        "fixed_contract_type": null,
+        "fixed_contract_price": null,
+        "fixed_contract_agreement_date": "2024-05-29T18:11:20.941Z"
+      },
+      "substation": 12,
+      "dl": 25,
+      "fixed_contract_price": null,
+      "guaranteed_capacity": -28907.38
+    }
+  },
+  "changedBy": "system",
+  "changedAt": "2025-04-15T02:35:23.115Z"
+}

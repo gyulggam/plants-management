@@ -14,12 +14,11 @@ if (!fs.existsSync(HISTORY_DIR)) {
 
 // GET /api/plants/[id] - 발전소 상세 정보 조회
 export async function GET(
-  _: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
-    const id = parseInt(resolvedParams.id);
+    const id = parseInt(context.params.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -48,7 +47,7 @@ export async function GET(
       data: plant,
     });
   } catch (error) {
-    console.error(`Error fetching plant with ID ${params.id}:`, error);
+    console.error(`Error fetching plant with ID ${context.params.id}:`, error);
     return NextResponse.json(
       {
         status: "error",
@@ -62,11 +61,10 @@ export async function GET(
 // PATCH /api/plants/[id] - 발전소 정보 수정
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
-    const id = parseInt(resolvedParams.id);
+    const id = parseInt(context.params.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -148,7 +146,7 @@ export async function PATCH(
       data: updatedPlant,
     });
   } catch (error) {
-    console.error(`Error updating plant with ID ${params.id}:`, error);
+    console.error(`Error updating plant with ID ${context.params.id}:`, error);
     return NextResponse.json(
       {
         status: "error",
@@ -161,12 +159,11 @@ export async function PATCH(
 
 // DELETE /api/plants/[id] - 발전소 삭제
 export async function DELETE(
-  _: NextRequest,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
-    const id = parseInt(resolvedParams.id);
+    const id = parseInt(context.params.id);
 
     if (isNaN(id)) {
       return NextResponse.json(
@@ -221,7 +218,7 @@ export async function DELETE(
       message: `ID: ${id} 발전소가 성공적으로 삭제되었습니다.`,
     });
   } catch (error) {
-    console.error(`Error deleting plant with ID ${params.id}:`, error);
+    console.error(`Error deleting plant with ID ${context.params.id}:`, error);
     return NextResponse.json(
       {
         status: "error",

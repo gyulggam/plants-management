@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RefreshCw } from "lucide-react";
 import {
   RTUBatteryChart,
   RTUSignalChart,
@@ -166,7 +167,10 @@ export default function RTUMonitorPage() {
             >
               {connectionStatus}
             </Badge>
-            <Button onClick={handleRefresh}>새로고침</Button>
+            <Button onClick={handleRefresh}>
+              <RefreshCw className="h-4 w-4" />
+              새로고침
+            </Button>
           </div>
         </div>
       </div>

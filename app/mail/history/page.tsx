@@ -243,12 +243,7 @@ export default function MailHistoryPage() {
             <h1 className="text-3xl font-bold">메일 발송내역</h1>
           </div>
 
-          <Button
-            variant="outline"
-            onClick={fetchMails}
-            disabled={isLoading}
-            className="gap-1"
-          >
+          <Button onClick={fetchMails} disabled={isLoading}>
             <RefreshCw className="h-4 w-4" />
             새로고침
           </Button>

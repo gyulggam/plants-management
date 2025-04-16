@@ -27,26 +27,29 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // 서버 컴포넌트가 아닌 클라이언트에서만 로드할 맵 컴포넌트 (SSR 비활성화)
-const MapContainer = dynamic(
+const MapContainer = dynamicImport(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
 );
-const TileLayer = dynamic(
+const TileLayer = dynamicImport(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
   { ssr: false }
 );
-const Marker = dynamic(
+const Marker = dynamicImport(
   () => import("react-leaflet").then((mod) => mod.Marker),
   { ssr: false }
 );
-const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
-  ssr: false,
-});
+const Popup = dynamicImport(
+  () => import("react-leaflet").then((mod) => mod.Popup),
+  {
+    ssr: false,
+  }
+);
 
 // 발전소 타입별 마커 아이콘 설정
 const getPlantIcon = (type: string) => {
@@ -61,9 +64,6 @@ const getPlantIcon = (type: string) => {
     iconAnchor: [10, 10],
   });
 };
-
-// 이 페이지는 동적으로 렌더링됩니다 (SSR)
-export const dynamicRendering = "force-dynamic";
 
 export default function PlantDetailPage() {
   const params = useParams();
@@ -470,3 +470,6 @@ export default function PlantDetailPage() {
     </div>
   );
 }
+
+// 이 페이지는 동적으로 렌더링됩니다 (SSR)
+export const dynamic = "force-dynamic";

@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 
+// 이 페이지는 동적으로 렌더링됩니다 (SSR)
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   try {
     // 인증 확인 시도

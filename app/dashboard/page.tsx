@@ -1,55 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { format } from "date-fns";
-import { ko } from "date-fns/locale";
-
-interface History {
-  id: string;
-  plantId: string;
-  type: string;
-  changes: {
-    before: {
-      id?: string;
-      name?: string;
-      type?: string;
-      capacity?: number;
-      address?: string;
-      latitude?: number;
-      longitude?: number;
-      status?: string;
-    } | null;
-    after: {
-      id?: string;
-      name?: string;
-      type?: string;
-      capacity?: number;
-      address?: string;
-      latitude?: number;
-      longitude?: number;
-      status?: string;
-    } | null;
-  };
-  changedBy: string;
-  changedAt: string;
-}
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [histories, setHistories] = useState<History[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -57,43 +15,13 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    const fetchHistories = async () => {
-      try {
-        const response = await fetch("/api/plants/history");
-        if (!response.ok) throw new Error("데이터를 가져오는데 실패했습니다.");
-        const data = await response.json();
-        setHistories(data);
-      } catch (error) {
-        console.error("변경 이력 로딩 실패:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHistories();
-  }, []);
-
-  if (status === "loading" || loading) {
+  if (status === "loading") {
     return <div>로딩 중...</div>;
   }
 
   if (!session) {
     return null;
   }
-
-  const getChangeTypeLabel = (type: string) => {
-    switch (type) {
-      case "create":
-        return "등록";
-      case "update":
-        return "수정";
-      case "delete":
-        return "삭제";
-      default:
-        return type;
-    }
-  };
 
   return (
     <div className="container mx-auto py-6">
@@ -137,84 +65,20 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>최근 변경 이력</CardTitle>
+          <CardTitle>대시보드 안내</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>변경 유형</TableHead>
-                  <TableHead>발전소</TableHead>
-                  <TableHead>변경 내용</TableHead>
-                  <TableHead>변경자</TableHead>
-                  <TableHead>변경 일시</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {histories.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      변경 이력이 없습니다.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  histories.slice(0, 5).map((history) => (
-                    <TableRow
-                      key={history.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => router.push(`/plants/${history.plantId}`)}
-                    >
-                      <TableCell>
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            history.type === "create"
-                              ? "bg-green-100 text-green-800"
-                              : history.type === "update"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {getChangeTypeLabel(history.type)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {history.changes.after?.name ||
-                          history.changes.before?.name}
-                      </TableCell>
-                      <TableCell>
-                        {history.type === "create"
-                          ? "새로운 발전소가 등록되었습니다."
-                          : history.type === "update"
-                          ? "발전소 정보가 수정되었습니다."
-                          : "발전소가 삭제되었습니다."}
-                      </TableCell>
-                      <TableCell>{history.changedBy}</TableCell>
-                      <TableCell>
-                        {format(
-                          new Date(history.changedAt),
-                          "yyyy-MM-dd HH:mm",
-                          {
-                            locale: ko,
-                          }
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-          {histories.length > 5 && (
-            <div className="mt-4 text-right">
-              <button
-                onClick={() => router.push("/plants/history")}
-                className="text-sm text-primary hover:underline"
-              >
-                전체 변경 이력 보기 →
-              </button>
-            </div>
-          )}
+          <p className="text-gray-600">
+            왼쪽 사이드바의 메뉴를 통해 발전소 관리 시스템의 다양한 기능을
+            이용하실 수 있습니다.
+          </p>
+          <ul className="list-disc list-inside mt-4 space-y-2 text-gray-600">
+            <li>발전소 목록에서 전체 발전소를 확인하실 수 있습니다.</li>
+            <li>
+              발전소를 선택하여 상세 정보를 확인하고 관리하실 수 있습니다.
+            </li>
+            <li>모니터링 탭에서 실시간 발전 현황을 확인하실 수 있습니다.</li>
+          </ul>
         </CardContent>
       </Card>
     </div>

@@ -40,11 +40,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return null;
   }
 
+  // 경로 끝의 슬래시(/) 제거
+  const normalizedPath =
+    pathname.endsWith("/") && pathname !== "/"
+      ? pathname.slice(0, -1)
+      : pathname;
+
   const navigationItems = [
     {
       title: "대시보드",
       href: "/dashboard",
-      isActive: pathname === "/dashboard",
+      isActive: normalizedPath === "/dashboard",
     },
     {
       title: "발전소 관리",
@@ -52,54 +58,55 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {
           title: "리스트 뷰",
           href: "/plants",
-          isActive: pathname === "/plants",
+          isActive:
+            normalizedPath === "/plants" ||
+            normalizedPath.match(/^\/plants\/(?!map)/) !== null,
         },
         {
           title: "지도 뷰",
           href: "/plants/map",
-          isActive: pathname === "/plants/map",
+          isActive: normalizedPath === "/plants/map",
         },
       ],
     },
     {
       title: "RTU 관리",
-      href: "/rtus",
-      isActive: pathname
-        ? pathname === "/rtus" || pathname.startsWith("/rtus/")
-        : false,
       items: [
         {
           title: "RTU 목록",
           href: "/rtus",
-          isActive: pathname === "/rtus",
+          isActive:
+            normalizedPath === "/rtus" ||
+            normalizedPath.match(/^\/rtus\/(?!monitor)/) !== null,
         },
         {
           title: "실시간 모니터링",
           href: "/rtus/monitor",
-          isActive: pathname === "/rtus/monitor",
+          isActive: normalizedPath === "/rtus/monitor",
         },
       ],
     },
     {
       title: "메일 서비스",
-      href: "/mail",
-      isActive: pathname
-        ? pathname === "/mail" || pathname.startsWith("/mail/")
-        : false,
       items: [
         {
           title: "발송내역",
           href: "/mail/history",
-          isActive: pathname === "/mail/history",
+          isActive: normalizedPath === "/mail/history",
         },
         {
           title: "메일 발송하기",
           href: "/mail/compose",
-          isActive: pathname === "/mail/compose",
+          isActive: normalizedPath === "/mail/compose",
         },
       ],
     },
   ];
+
+  console.log(
+    "메뉴 아이템 활성화 상태:",
+    JSON.stringify(navigationItems, null, 2)
+  );
 
   return (
     <div className="flex min-h-screen w-full flex-col">

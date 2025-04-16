@@ -46,7 +46,8 @@ export default function MailHistoryPage() {
   const fetchMails = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/mail");
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/mail`);
       if (response.ok) {
         const data = await response.json();
         setMails(data);

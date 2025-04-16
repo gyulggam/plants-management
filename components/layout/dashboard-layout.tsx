@@ -174,7 +174,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                >
                   로그아웃
                 </DropdownMenuItem>
               </DropdownMenuContent>

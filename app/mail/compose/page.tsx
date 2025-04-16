@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -106,7 +106,9 @@ export default function ComposeMailPage() {
   // 연락처 목록 가져오기
   const fetchContacts = async () => {
     try {
-      const response = await fetch("/api/mail/contacts");
+      // 절대 URL로 수정
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/mail/contacts`);
       if (response.ok) {
         const data = await response.json();
         setContacts(data);
@@ -116,16 +118,17 @@ export default function ComposeMailPage() {
     }
   };
 
-  // 연락처 목록 불러오기
-  useState(() => {
+  // useState 대신 useEffect 사용으로 수정 (오류 수정)
+  useEffect(() => {
     fetchContacts();
-  });
+  }, []);
 
   // 새 연락처 추가
   const onSubmitContact = async (data: ContactFormData) => {
     setIsContactLoading(true);
     try {
-      const response = await fetch("/api/mail/contacts", {
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/mail/contacts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -294,11 +297,10 @@ export default function ComposeMailPage() {
       });
 
       // API 요청
-      const response = await fetch("/api/mail", {
+      const baseUrl = window.location.origin;
+      const response = await fetch(`${baseUrl}/api/mail`, {
         method: "POST",
         body: formData,
-        // 여기서는 Content-Type 헤더를 설정하지 않음
-        // (브라우저가 multipart/form-data 경계를 자동으로 설정)
       });
 
       const result = await response.json();

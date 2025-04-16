@@ -5,7 +5,33 @@ import { SendMailRequest } from "@/types/mail";
 // 메일 발송 API
 export async function POST(request: NextRequest) {
   try {
-    const data = (await request.json()) as SendMailRequest;
+    // FormData인지 JSON인지 확인
+    const contentType = request.headers.get("content-type") || "";
+    let data: SendMailRequest;
+
+    if (contentType.includes("multipart/form-data")) {
+      // FormData 처리
+      const formData = await request.formData();
+      const subject = formData.get("subject") as string;
+      const content = formData.get("content") as string;
+
+      // JSON 문자열로 된 recipients를 객체로 변환
+      const recipientsJson = formData.get("recipients") as string;
+      const recipients = recipientsJson ? JSON.parse(recipientsJson) : [];
+
+      // 첨부 파일 처리
+      const attachments: File[] = [];
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith("attachment-") && value instanceof File) {
+          attachments.push(value);
+        }
+      }
+
+      data = { subject, content, recipients, attachments };
+    } else {
+      // JSON 처리
+      data = (await request.json()) as SendMailRequest;
+    }
 
     // 실제 구현에서는 auth 세션에서 사용자 정보를 가져와야 함
     const userId = "current-user-id";

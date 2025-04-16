@@ -5,45 +5,45 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 
-// Gmail SMTP 설정 또는 테스트 계정 사용
+// SMTP 설정 또는 테스트 계정 사용
 let transporter: nodemailer.Transporter;
 
 // 트랜스포터 생성 함수
 const createTransporter = async () => {
   // 환경 변수에서 SMTP 정보 가져오기
-  const useGmail = process.env.SMTP_USER && process.env.SMTP_PASS;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+  const smtpPort = parseInt(process.env.SMTP_PORT || "587", 10);
+  const smtpSecure = process.env.SMTP_SECURE === "true";
 
-  if (useGmail) {
-    // Gmail SMTP 서버 설정
-    console.log("Gmail SMTP 서버 사용 설정 중...");
-    console.log(
-      `SMTP 설정: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}, Secure: ${process.env.SMTP_SECURE}`
-    );
+  // SMTP 설정이 있는지 확인
+  if (smtpUser && smtpPass) {
+    console.log("SMTP 서버 설정 중...");
+    console.log(`SMTP 설정: ${smtpHost}:${smtpPort}, Secure: ${smtpSecure}`);
 
-    // SSL/TLS 옵션으로 보안 연결 설정
-    const secure = process.env.SMTP_SECURE === "true";
-    const port = Number(process.env.SMTP_PORT) || (secure ? 465 : 587);
-
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: port,
-      secure: secure, // true = 465, false = 587, other
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      // Gmail에 맞는 보안 설정
-      tls: {
-        // SSL 검증 활성화 (프로덕션에서는 true 권장)
-        rejectUnauthorized: true,
-      },
-      // 디버그 모드 활성화
-      logger: true,
-      debug: true,
-    });
-
-    // 연결 테스트
     try {
+      // SMTP 설정으로 트랜스포터 생성
+      transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+        tls: {
+          // SSL 검증 활성화 (프로덕션에서는 true 권장)
+          rejectUnauthorized: true,
+        },
+        // 개발 환경에서만 디버그 활성화
+        ...(process.env.NODE_ENV !== "production" && {
+          logger: true,
+          debug: true,
+        }),
+      });
+
+      // 연결 테스트
       await transporter.verify();
       console.log("SMTP 서버 연결 성공!");
       return transporter;
@@ -51,9 +51,13 @@ const createTransporter = async () => {
       console.error("SMTP 서버 연결 실패:", error);
       console.log("Ethereal 테스트 계정으로 대체합니다.");
     }
+  } else {
+    console.log(
+      "SMTP 환경 변수가 설정되지 않았습니다. Ethereal 테스트 계정을 사용합니다."
+    );
   }
 
-  // Gmail 설정이 없거나 연결 실패 시 Ethereal 테스트 계정 사용
+  // SMTP 설정이 없거나 연결 실패 시 Ethereal 테스트 계정 사용
   try {
     const testAccount = await nodemailer.createTestAccount();
     console.log("Ethereal 테스트 계정 생성:", testAccount.user);
@@ -66,25 +70,16 @@ const createTransporter = async () => {
         user: testAccount.user,
         pass: testAccount.pass,
       },
-      debug: true,
+      ...(process.env.NODE_ENV !== "production" && {
+        debug: true,
+      }),
     });
 
+    console.log("Ethereal SMTP 서버 설정 완료");
     return transporter;
   } catch (error) {
     console.error("Ethereal 테스트 계정 생성 실패:", error);
-
-    // 기본 설정으로 대체
-    transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "example@ethereal.email",
-        pass: "examplepass",
-      },
-    });
-
-    return transporter;
+    throw new Error("메일 서버 설정에 실패했습니다. 관리자에게 문의하세요.");
   }
 };
 
@@ -100,15 +95,15 @@ export async function getUserContacts(userId: string): Promise<Contact[]> {
     userContacts[userId] = [
       {
         id: uuidv4(),
-        name: "홍길동",
-        email: "hong@naver.com", // 네이버 메일로 변경
+        name: "쥐메일TEST",
+        email: "kjs2kjs2@gmail.com",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       {
         id: uuidv4(),
-        name: "김철수",
-        email: "kim@example.com",
+        name: "네이버TEST",
+        email: "67sc2@naver.com",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -173,7 +168,29 @@ export async function sendMail(
 ): Promise<Mail> {
   // 트랜스포터가 없으면 생성
   if (!transporter) {
-    await createTransporter();
+    try {
+      await createTransporter();
+    } catch (error) {
+      console.error("트랜스포터 생성 실패:", error);
+      return {
+        id: uuidv4(),
+        subject: data.subject,
+        content: data.content,
+        senderId: userId,
+        senderName: userName,
+        senderEmail: userEmail,
+        recipients: data.recipients.map((r) => ({
+          id: uuidv4(),
+          name: r.name || r.email.split("@")[0],
+          email: r.email,
+          type: r.type,
+        })),
+        attachments: [],
+        status: "failed",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
   }
 
   try {
@@ -239,87 +256,99 @@ export async function sendMail(
       senderEmail: userEmail,
       recipients,
       attachments: mailAttachments,
-      status: "sent",
-      sentAt: now,
+      status: "sending", // 상태를 sending으로 초기화
       createdAt: now,
       updatedAt: now,
     };
 
     // 수신자 목록 분리
-    const toRecipients = recipients.filter((r) => r.type === "to");
-    const ccRecipients = recipients.filter((r) => r.type === "cc");
-    const bccRecipients = recipients.filter((r) => r.type === "bcc");
+    const toRecipients = recipients
+      .filter((r) => r.type === "to")
+      .map((r) => r.email);
+    const ccRecipients = recipients
+      .filter((r) => r.type === "cc")
+      .map((r) => r.email);
+    const bccRecipients = recipients
+      .filter((r) => r.type === "bcc")
+      .map((r) => r.email);
 
-    const toEmails =
-      toRecipients.length > 0
-        ? toRecipients.map((r) => `${r.name} <${r.email}>`).join(", ")
-        : "";
-
-    const ccEmails =
-      ccRecipients.length > 0
-        ? ccRecipients.map((r) => `${r.name} <${r.email}>`).join(", ")
-        : undefined;
-
-    const bccEmails =
-      bccRecipients.length > 0
-        ? bccRecipients.map((r) => `${r.name} <${r.email}>`).join(", ")
-        : undefined;
-
-    // 네이버 이메일 처리를 위한 이스케이프 문자열 제거
-    const sanitizeRecipients = (emailList?: string) => {
-      return emailList?.replace(/"/g, "");
-    };
-
-    // nodemailer로 실제 메일 발송
-    try {
-      console.log("메일 전송 시도:", {
-        from: `${userName} <${process.env.SMTP_USER}>`,
-        to: toEmails,
-        cc: ccEmails,
-        bcc: bccEmails,
-        subject: data.subject,
-        attachments: nodemailerAttachments.length,
-      });
-
-      // 메일 옵션 구성
-      const mailOptions = {
-        from: `${userName} <${process.env.SMTP_USER}>`, // 따옴표 제거
-        to: sanitizeRecipients(toEmails),
-        cc: sanitizeRecipients(ccEmails),
-        bcc: sanitizeRecipients(bccEmails),
-        subject: data.subject,
-        html: data.content,
-        attachments:
-          nodemailerAttachments.length > 0 ? nodemailerAttachments : undefined,
-      };
-
-      const info = await transporter.sendMail(mailOptions);
-
-      console.log("메일 전송 성공:", info.messageId);
-
-      // 테스트 계정 사용 시 URL 로깅
-      if (info.messageId && info.messageId.includes("ethereal")) {
-        console.log("Ethereal URL:", nodemailer.getTestMessageUrl(info));
-      }
-
-      // 상태 업데이트 및 결과 URL 추가
-      mail.status = "sent";
-      mail.sentAt = now;
-    } catch (error) {
-      console.error("메일 전송 실패:", error);
-      mail.status = "failed";
+    // 수신자가 없는 경우 오류 처리
+    if (toRecipients.length === 0) {
+      throw new Error("최소 한 명 이상의 수신자가 필요합니다.");
     }
 
-    // 보낸 메일 저장
+    // nodemailer로 메일 발송
+    const mailOptions = {
+      from: {
+        name: userName,
+        address: userEmail,
+      },
+      to: toRecipients.join(", "),
+      cc: ccRecipients.length > 0 ? ccRecipients.join(", ") : undefined,
+      bcc: bccRecipients.length > 0 ? bccRecipients.join(", ") : undefined,
+      subject: data.subject,
+      html: data.content,
+      attachments: nodemailerAttachments,
+    };
+
+    console.log("메일 발송 시도:", {
+      to: toRecipients,
+      cc: ccRecipients,
+      bcc: bccRecipients,
+      subject: data.subject,
+    });
+
+    // 메일 발송 (반환값에서 성공 여부 확인)
+    const info = await transporter.sendMail(mailOptions);
+    console.log("메일 발송 완료:", info.messageId);
+
+    // 발송 성공한 메일의 링크 출력 (Ethereal 테스트 계정 사용 시)
+    if (info.messageId && process.env.NODE_ENV !== "production") {
+      console.log("미리보기 URL:", nodemailer.getTestMessageUrl(info));
+    }
+
+    // 메일 상태 업데이트 (성공)
+    mail.status = "sent";
+    mail.sentAt = now;
+
+    // 저장
     if (!sentMails[userId]) {
       sentMails[userId] = [];
     }
-    sentMails[userId].push(mail);
+    sentMails[userId].unshift(mail); // 최신 메일이 앞에 오도록 추가
 
     return mail;
   } catch (error) {
-    console.error("메일 객체 생성 실패:", error);
-    throw new Error("메일 발송 준비 중 오류가 발생했습니다.");
+    console.error("메일 발송 오류:", error);
+
+    // 실패 시 에러 정보와 함께 객체 생성
+    const failedMail: Mail = {
+      id: uuidv4(),
+      subject: data.subject,
+      content: data.content,
+      senderId: userId,
+      senderName: userName,
+      senderEmail: userEmail,
+      recipients: data.recipients.map((r) => ({
+        id: uuidv4(),
+        name: r.name || r.email.split("@")[0],
+        email: r.email,
+        type: r.type,
+      })),
+      attachments: [],
+      status: "failed",
+      error: error instanceof Error ? error.message : "알 수 없는 오류",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 실패한 메일도 목록에 저장
+    if (!sentMails[userId]) {
+      sentMails[userId] = [];
+    }
+    sentMails[userId].unshift(failedMail);
+
+    return failedMail;
   }
 }
 

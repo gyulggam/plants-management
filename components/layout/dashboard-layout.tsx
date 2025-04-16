@@ -86,6 +86,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       isActive: pathname
         ? pathname === "/mail" || pathname.startsWith("/mail/")
         : false,
+      items: [
+        {
+          title: "발송내역",
+          href: "/mail/history",
+          isActive: pathname === "/mail/history",
+        },
+        {
+          title: "메일 발송하기",
+          href: "/mail/compose",
+          isActive: pathname === "/mail/compose",
+        },
+      ],
     },
   ];
 

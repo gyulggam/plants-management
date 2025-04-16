@@ -34,12 +34,21 @@ export interface Mail {
   senderEmail: string;
   recipients: {
     id: string;
-    name: string;
+    name?: string;
     email: string;
     type: "to" | "cc" | "bcc";
   }[];
-  attachments: MailAttachment[];
-  status: "draft" | "sent" | "failed";
+  attachments: {
+    id: string;
+    fileName: string;
+    fileSize: number;
+    fileType: string;
+    fileUrl: string;
+    mailId: string;
+    createdAt: string;
+  }[];
+  status: "sending" | "draft" | "sent" | "failed";
+  error?: string;
   sentAt?: string;
   createdAt: string;
   updatedAt: string;

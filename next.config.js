@@ -13,6 +13,10 @@ const nextConfig = {
   serverActions: {
     bodySizeLimit: "2mb",
   },
+  // 모든 페이지 동적 렌더링
+  exportPathMap: undefined,
+  // 모든 페이지를 서버 사이드 렌더링
+  trailingSlash: true,
 };
 
 export default nextConfig;

@@ -62,6 +62,9 @@ const getPlantIcon = (type: string) => {
   });
 };
 
+// 이 페이지는 동적으로 렌더링됩니다 (SSR)
+export const dynamicRendering = "force-dynamic";
+
 export default function PlantDetailPage() {
   const params = useParams();
   const router = useRouter();

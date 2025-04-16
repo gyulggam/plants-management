@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { nextAuthOptions } from "./next-auth-options";
-import { headers } from "next/headers";
 
 /**
  * 서버 컴포넌트에서 세션 정보를 가져옵니다.
@@ -8,8 +7,6 @@ import { headers } from "next/headers";
  */
 export async function getSession() {
   try {
-    // headers()를 사용하므로 이 함수는 동적 렌더링을 강제합니다
-    headers(); // 이는 정적 생성을 방지하고 항상 SSR로 렌더링되게 합니다
     return await getServerSession(nextAuthOptions);
   } catch (error) {
     console.error("Error in getSession:", error);

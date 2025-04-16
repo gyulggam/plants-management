@@ -217,3 +217,5 @@ export default function PlantEditPage({
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

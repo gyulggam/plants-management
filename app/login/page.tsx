@@ -3,7 +3,13 @@
 import { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import Image from "next/image";
 
 // 클라이언트 컴포넌트이므로 서버 사이드 오류가 발생하지 않습니다
@@ -29,34 +35,42 @@ export default function LoginPage() {
   };
 
   if (status === "loading") {
-    return <div>로딩 중...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-[350px]">
-        <CardHeader>
-          <CardTitle className="text-center">발전소 관리 시스템</CardTitle>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-[380px] shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">
+            발전소 관리 시스템
+          </CardTitle>
+          <CardDescription className="text-center">
+            Google 계정으로 로그인하세요
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {errorMessage && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 text-sm">
               <p>{errorMessage}</p>
             </div>
           )}
 
           <div className="flex flex-col items-center">
-            <p className="mb-6 text-center text-gray-600">
-              계정으로 로그인하세요
-            </p>
-
             {/* 구글 로그인 버튼 (구글 디자인 가이드라인 준수) */}
             <button
               onClick={handleGoogleSignIn}
               className="flex items-center justify-center w-full h-10 px-4 py-2 
-                        border border-gray-300 rounded-md bg-white text-gray-700 
-                        hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 
-                        focus:ring-blue-500 transition-colors"
+                         border border-gray-300 rounded-md bg-white text-gray-700 
+                         hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                         focus:ring-blue-500 transition-colors shadow-sm"
             >
               <Image
                 src="/google-logo.svg"
@@ -65,10 +79,10 @@ export default function LoginPage() {
                 height={18}
                 className="mr-2"
               />
-              <span>Google로 계속하기</span>
+              <span className="text-sm font-medium">Google로 계속하기</span>
             </button>
 
-            <p className="mt-4 text-xs text-center text-gray-500">
+            <p className="mt-6 text-xs text-center text-gray-500">
               로그인하면 이용약관 및 개인정보처리방침에 동의하게 됩니다.
             </p>
           </div>

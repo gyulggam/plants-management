@@ -746,10 +746,10 @@ function CustomSidebarItem({
         <button
           onClick={() => setExpanded(!expanded)}
           className={cn(
-            "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-primary/70 hover:text-primary-foreground/90",
-            expanded && "bg-primary/50",
+            "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground ",
+            expanded && "bg-accent/50",
             hasActiveSubItem &&
-              "bg-primary/50 text-accent-foreground font-semibold"
+              "bg-accent/50 text-accent-foreground font-semibold"
           )}
         >
           <span>{title}</span>
